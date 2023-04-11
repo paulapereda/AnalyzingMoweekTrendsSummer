@@ -1,3 +1,5 @@
+start_time <- Sys.time()
+
 pacman::p_load(tidyverse, rvest, httr)
 
 url <- "https://moweek.com.uy/"
@@ -10,7 +12,7 @@ category_urls <- lapply(category_nodes, function(node) html_nodes(node, "a") %>%
                           html_attr("href")) %>%
   unlist() %>%
   str_subset("/vestimenta/|/calzado/|/accesorios/") %>% 
-  str_replace_all("1", "10") 
+  str_replace_all("1", "15") 
 
 category_urls <- category_urls[!(category_urls %in% c("/vestimenta/10", "/calzado/10", 
                                                       "/accesorios/10"))]
@@ -21,6 +23,13 @@ for (url in category_urls) {
   cat_url <- paste0("https://moweek.com.uy", url)
   cat_content <- RETRY("GET", cat_url)
   cat_page <- read_html(content(cat_content, as = "text"))
+  
+  # Extract the category name and the subcategory name from the page title
+  cat_name <- html_text(html_node(cat_page, "title")) %>%
+    str_to_title()
+  
+  subcat_name <- html_text(html_node(cat_page, ".categoryLevelTwoTitle")) %>%
+    str_to_title()
   
   image_tags <- html_nodes(cat_page, ".productViewContainer")
   
@@ -52,6 +61,8 @@ for (url in category_urls) {
       name = name,
       price = price,
       brand = brand,
+      category = cat_name,
+      subcategory = subcat_name,
       bharacteristics = characteristics,
       sizes = sizes,
       colors = color,
@@ -70,13 +81,29 @@ for (url in category_urls) {
   }
 }
 
+write_rds(product_data, "data/product_info_raw2.rds")
+
 # Clean data
-product_data <- product_data %>%
-  mutate(Name = str_trim(Name),
-         Price = str_trim(Price),
-         Brand = str_trim(Brand),
-         Characteristics = str_trim(Characteristics),
-         Sizes = str_trim(Sizes),
-         Color = str_trim(Color),
-         Description = str_trim(Description))
-# %>% filter(Image_URL != "/files/empty.png")
+
+product_data_clean <- product_data %>%
+  transmute(name = str_trim(name),
+            price = str_trim(price),
+            bank_price = str_trim(price),
+            brand = str_trim(brand),
+            category = cat_name,
+            subcategory = subcat_name,
+            characteristics = str_trim(bharacteristics),
+            sizes = str_trim(sizes),
+            colors = str_trim(colors),
+            description = str_trim(description),
+            image_URL, product_URL) %>% 
+  mutate(price = as.numeric(str_replace_all(price, "[\\$\\s.]", "")),
+         bank_price = price*0.75,
+         brand = str_remove(brand, "by \n                                "))
+
+write_rds(product_data_clean, "data/product_info_clean2.rds")
+
+end_time <- Sys.time()
+end_time - start_time
+
+# 
