@@ -82,7 +82,7 @@ write_rds(product_data, "data/product_vestimenta.rds")
 
 # Clean data
 
-product_data_clean <- product_data_accesorios %>%
+product_data_clean <- product_data_vestimenta %>%
   transmute(name = str_trim(name),
             price = str_trim(price),
             bank_price = str_trim(price),
@@ -96,9 +96,9 @@ product_data_clean <- product_data_accesorios %>%
   mutate(price = as.numeric(str_replace_all(price, "[\\$\\s.]", "")),
          bank_price = price*.75,
          brand = str_remove(brand, "by \n                                "),
-         type = "Accesorios")
+         type = "Vestimenta")
 
-write_rds(product_data_clean, "data/product_clean_accesorios.rds")
+write_rds(product_data_clean, "data/product_clean_vestimenta.rds")
 
 end_time <- Sys.time()
 end_time - start_time

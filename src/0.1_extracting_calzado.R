@@ -73,31 +73,34 @@ for (url in category_urls) {
     
     if(skip_to_next) { next } 
     
-    product_data <- product_data %>%
-      bind_rows(product_info)
+    product_data
   }
 }
 
-write_rds(product_data, "data/product_info_raw2.rds")
+write_rds(product_data, "data/calzado_raw.rds")
 
 # Clean data
 
-product_data_clean <- product_data %>%
+product_data_clean <- product_data_vestimenta %>%
   transmute(name = str_trim(name),
             price = str_trim(price),
             bank_price = str_trim(price),
             brand = str_trim(brand),
-            type = url,
-            cat_name = cat_name,
+            category = category,
             characteristics = str_trim(characteristics),
             sizes = str_trim(sizes),
             colors = str_trim(colors),
             description = str_trim(description),
             image_URL, product_URL) %>% 
   mutate(price = as.numeric(str_replace_all(price, "[\\$\\s.]", "")),
-         bank_price = price*0.75,
-         brand = str_remove(brand, "by \n                                "))
+         bank_price = price*.75,
+         brand = str_remove(brand, "by \n                                "),
+         type = "Calzado")
 
+write_rds(product_data_clean, "data/product_clean_calzado.rds")
 
-write_rds(product_data, "product_data_calzado.rds")
+end_time <- Sys.time()
+end_time - start_time
+
+# 
 
