@@ -12,10 +12,10 @@ category_urls <- lapply(category_nodes, function(node) html_nodes(node, "a") %>%
                           html_attr("href")) %>%
   unlist() %>%
   str_subset("/vestimenta/|/calzado/|/accesorios/") %>% 
-  str_replace_all("1", "15") 
+  str_replace_all("1", "25") 
 
-category_urls <- category_urls[!(category_urls %in% c("/vestimenta/15", "/calzado/15", 
-                                                      "/accesorios/15"))]
+category_urls <- category_urls[!(category_urls %in% c("/vestimenta/25", "/calzado/25", 
+                                                      "/accesorios/25"))]
 
 product_data <- tibble()
 for (url in category_urls) {
@@ -83,26 +83,24 @@ write_rds(product_data, "data/product_info_raw2.rds")
 
 # Clean data
 
-product_data_clean <- product_data %>%
-  transmute(name = str_trim(name),
-            price = str_trim(price),
-            bank_price = str_trim(price),
-            brand = str_trim(brand),
-            type = url,
-            category = cat_name,
-            characteristics = str_trim(characteristics),
-            sizes = str_trim(sizes),
-            colors = str_trim(colors),
-            description = str_trim(description),
-            image_URL, product_URL) %>% 
+product_data_clean <- product_data_data %>%
+  mutate(name = str_trim(name),
+         price = str_trim(price),
+         bank_price = str_trim(price),
+         brand = str_trim(brand),
+         category = category,
+         characteristics = str_trim(characteristics),
+         sizes = str_trim(sizes),
+         colors = str_trim(colors),
+         description = str_trim(description),
+         image_URL, product_URL) %>% 
   mutate(price = as.numeric(str_replace_all(price, "[\\$\\s.]", "")),
-         bank_price = price*0.75,
-         brand = str_remove(brand, "by \n                                "))
+         bank_price = price*.75,
+         brand = str_remove(brand, "by \n                                "), 
+         type = "")
 
-write_rds(product_data_clean, "data/product_info_clean2.rds")
+write_rds(product_data_clean_vestimenta, "data/product_clean_vestimenta.rds")
 
 end_time <- Sys.time()
 end_time - start_time
-
-# Time difference of 3.38306 hours
 
