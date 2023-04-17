@@ -98,7 +98,7 @@ product_data_clean <- product_data_vestimenta %>%
          brand = str_remove(brand, "by \n                                "),
          type = "Vestimenta")
 
-write_rds(product_data_clean, "data/product_clean_vestimenta.rds")
+write_rds(product_data_clean, "data/product_clean_vestimenta2.rds")
 
 end_time <- Sys.time()
 end_time - start_time

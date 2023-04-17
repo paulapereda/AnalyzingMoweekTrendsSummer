@@ -73,7 +73,8 @@ for (url in category_urls) {
     
     if(skip_to_next) { next } 
     
-    product_data
+    product_data <- product_data %>%
+      bind_rows(product_info)
   }
 }
 
@@ -81,7 +82,7 @@ write_rds(product_data, "data/calzado_raw.rds")
 
 # Clean data
 
-product_data_clean <- product_data_vestimenta %>%
+product_data_clean <- product_data %>%
   transmute(name = str_trim(name),
             price = str_trim(price),
             bank_price = str_trim(price),
