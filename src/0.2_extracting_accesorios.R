@@ -3,7 +3,7 @@ start_time <- Sys.time()
 pacman::p_load(tidyverse, rvest, httr)
 
 url <- "https://moweek.com.uy/"
-html_content <- GET(url)
+html_content <- RETRY("GET", url)
 webpage <- read_html(content(html_content, as = "text"))
 
 category_nodes <- html_nodes(webpage, ".expandedCategory")
@@ -12,9 +12,9 @@ category_urls <- lapply(category_nodes, function(node) html_nodes(node, "a") %>%
                           html_attr("href")) %>%
   unlist() %>%
   str_subset("/accesorios/") %>% 
-  str_replace_all("1", "25") 
+  str_replace_all("1", "100") 
 
-category_urls <- category_urls[!(category_urls %in% c("/accesorios/25"))]
+category_urls <- category_urls[!(category_urls == "/accesorios/100")]
 
 product_data <- tibble()
 for (url in category_urls) {
@@ -78,11 +78,11 @@ for (url in category_urls) {
   }
 }
 
-write_rds(product_data, "data/accesorios_raw.rds")
+write_rds(product_data, "data-raw/accesorios_raw2.rds")
 
 # Clean data
 
-product_data_clean <- product %>%
+product_data_clean <- product_data %>%
   transmute(name = str_trim(name),
             price = str_trim(price),
             bank_price = str_trim(price),
@@ -98,7 +98,7 @@ product_data_clean <- product %>%
          brand = str_remove(brand, "by \n                                "),
          type = "Accesorios")
 
-write_rds(product_data_clean, "data/product_clean_accesorios.rds")
+write_rds(product_data_clean, "data-raw/product_clean_accesorios_LAST.rds")
 
 end_time <- Sys.time()
 end_time - start_time

@@ -12,9 +12,9 @@ category_urls <- lapply(category_nodes, function(node) html_nodes(node, "a") %>%
                           html_attr("href")) %>%
   unlist() %>%
   str_subset("/vestimenta/") %>% 
-  str_replace_all("1", "25") 
+  str_replace_all("1", "50") 
 
-category_urls <- category_urls[!(category_urls %in% c("/vestimenta/25"))]
+category_urls <- category_urls[!(category_urls %in% c("/vestimenta/50"))]
 
 product_data <- tibble()
 for (url in category_urls) {
@@ -78,11 +78,11 @@ for (url in category_urls) {
   }
 }
 
-write_rds(product_data, "data/product_vestimenta.rds")
+write_rds(product_data, "data-raw/product_vestimenta.rds")
 
 # Clean data
 
-product_data_clean <- product_data_vestimenta %>%
+product_data_clean <- product_data %>%
   transmute(name = str_trim(name),
             price = str_trim(price),
             bank_price = str_trim(price),
@@ -98,7 +98,7 @@ product_data_clean <- product_data_vestimenta %>%
          brand = str_remove(brand, "by \n                                "),
          type = "Vestimenta")
 
-write_rds(product_data_clean, "data/product_clean_vestimenta2.rds")
+write_rds(product_data_clean, "data-raw/product_clean_vestimenta_LAST.rds")
 
 end_time <- Sys.time()
 end_time - start_time

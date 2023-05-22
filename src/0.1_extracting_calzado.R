@@ -12,9 +12,9 @@ category_urls <- lapply(category_nodes, function(node) html_nodes(node, "a") %>%
                           html_attr("href")) %>%
   unlist() %>%
   str_subset("/calzado/") %>% 
-  str_replace_all("1", "25") 
+  str_replace_all("1", "50") 
 
-category_urls <- category_urls[!(category_urls %in% c("/calzado/25"))]
+category_urls <- category_urls[!(category_urls %in% c("/calzado/50"))]
 
 product_data <- tibble()
 for (url in category_urls) {
@@ -78,7 +78,7 @@ for (url in category_urls) {
   }
 }
 
-write_rds(product_data, "data/calzado_raw.rds")
+write_rds(product_data, "data-raw/calzado_raw.rds")
 
 # Clean data
 
@@ -98,10 +98,10 @@ product_data_clean <- product_data %>%
          brand = str_remove(brand, "by \n                                "),
          type = "Calzado")
 
-write_rds(product_data_clean, "data/product_clean_calzado.rds")
+write_rds(product_data_clean, "data-raw/product_clean_calzado_LAST.rds")
 
 end_time <- Sys.time()
 end_time - start_time
 
-# 
+# Time difference of 1.035137 hours
 
