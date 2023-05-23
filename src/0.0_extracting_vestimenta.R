@@ -54,18 +54,15 @@ for (url in category_urls) {
       description <- html_text(html_node(product_page, ".productGroupInfo"))
       
       # Combine all the information into a single row and add it to the product_data data frame
-      product_info <- tibble(
-        name = name,
-        price = price,
-        brand = brand,
-        type = url,
-        category = cat_name,
-        characteristics = characteristics,
-        sizes = sizes,
-        colors = color,
-        description = description,
-        image_URL = img_url,
-        product_URL = product_url)
+      product_info <- tibble(name = name,
+                             price = price,
+                             brand = brand,
+                             type = url,
+                             category = cat_name,
+                             characteristics = characteristics,
+                             sizes = sizes,
+                             colors = color,
+                             description = description)
       
     },
     
