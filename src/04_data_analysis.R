@@ -10,7 +10,8 @@ clothes <- read_rds(here("data", "product_vestimenta.rds")) %>%
                          "Jeans", "Monos", "Pantalones", "Polleras", "Remeras","Ruanas y chales", 
                          "Shorts y bermudas", "Vestidos"))
 
-# Media de Precio por category (Scatter plot category)
+# DATA BUT MAKE IT FASHION - Parte 1
+## Price Median (many outliers)
 
 prices_category <- clothes %>% 
   group_by(category) %>% 
@@ -36,12 +37,6 @@ clothes %>%
                show.legend = TRUE) 
 
 ggsave(here("plots", "dispersion_categoria.png"), dpi = 300, width = 13, height = 7)
-
-# Media de Precio por marca
-
-prices <- clothes %>% 
-  group_by(brand, category) %>% 
-  summarise(mean_price = mean(price))
   
 # Sustanaibility brands
 
@@ -69,7 +64,7 @@ sustainable %>%
 
 ggsave(here("plots", "sustainable_brands.png"), dpi = 300, width = 13, height = 12)
 
-# National brands
+## National brands
 
 national <- clothes %>% 
   group_by(brand) %>% 
@@ -95,8 +90,7 @@ national %>%
 
 ggsave(here("plots", "national_brands.png"), dpi = 300, width = 13, height = 12)
 
-
-# Sustanaibility & national brands
+## Sustanaibility & national brands
 
 sust_nat <- clothes %>% 
   group_by(brand) %>% 
@@ -107,7 +101,8 @@ sust_nat <- clothes %>%
   mutate(sustainable_national = round((((sustainable*.5 + national*.5))/n)*100, 2)) %>% 
   select( - sustainable, - national, - n)
 
-# Colors
+# DATA BUT MAKE IT FASHION - Parte 2
+## Color Trends
 
 n <- clothes %>% 
   pivot_longer(color_1:color_13, names_to = "color", values_to = "color_value") %>% 
@@ -115,13 +110,20 @@ n <- clothes %>%
   group_by(category) %>% 
   summarise(color = n())
 
+pre_colors <- clothes %>% 
+  pivot_longer(color_1:color_13, names_to = "color", values_to = "color_value") %>% 
+  filter(!is.na(color_value)) %>% 
+  group_by(color_value) %>% 
+  summarise(color = n())
+
+
 colors <- clothes %>% 
   pivot_longer(color_1:color_13, names_to = "color", values_to = "color_value") %>% 
   filter(!is.na(color_value)) %>% 
   group_by(category, color_value) %>% 
   summarise(color = n()) %>% 
   arrange(category, desc(color)) %>% 
-  filter(row_number() %in% c(1, 2, 3, 4, 5, 6, 7 ,8 , 9, 10)) %>% 
+  filter(row_number() %in% c(1, 2, 3, 4, 5, 6, 7 ,8 , 9, 10, 11, 12, 13, 14, 15)) %>% 
   mutate(color = case_when(
     category == "Blazers y chaquetas" ~ color/325,
     category == "Blusas y tops" ~ color/549,
@@ -138,8 +140,7 @@ colors <- clothes %>%
     category == "Remeras" ~ color/313,
     category == "Ruanas y chales" ~ color/284,
     category == "Shorts y bermudas" ~ color/66,
-    category == "Vestidos" ~ color/494
-  ), 
+    category == "Vestidos" ~ color/494), 
     color = round(color*100, 2))
 
 colors %>% 
@@ -156,10 +157,14 @@ colors %>%
   coord_flip() +
   facet_wrap(~ category, scales = "free_x")
 
+# DATA BUT MAKE IT FASHION - PARTE 3
+## What about sizes?
+
 sizes <- clothes %>% 
   pivot_longer(size_1:size_11, names_to = "size", values_to = "size_value") %>% 
   filter(!is.na(size_value)) %>% 
-  group_by(size_value) %>% 
-  summarise(size = n())
+  group_by(category, brand, size_value) %>% 
+  summarise(size = n()) %>% 
+  arrange(category, desc(size))
 
 

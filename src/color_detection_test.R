@@ -1,43 +1,46 @@
-pacman::p_load(jpeg, tidyverse, colourspace)
+pacman::p_load(tidyverse, colormap, magick, here)
 
-detect_dominant_colors <- function(folder_path, n = 5) {
-  img_list <- list.files(folder_path, pattern = ".jpg|.jpeg|.png", full.names = TRUE)
-  color_df <- purrr::map_df(img_list, function(filename) {
-    img <- jpeg::readJPEG(filename)
-    img_df <- data.frame(colourspace::RGB2LCH(colourspace::RGB(img)))
-    img_df <- img_df %>%
-      mutate(color = paste(round(L), round(C), round(H), sep = "_")) %>%
-      group_by(color) %>%
-      summarize(freq = n()) %>%
-      ungroup() %>%
-      arrange(desc(freq)) %>%
-      top_n(n, freq)
-    img_df$filename <- filename
-    return(img_df)
+# Define a function to extract the dominant colors
+extract_colors <- function(file_path) {
+  img <- tryCatch({
+    image_read(file_path)  # Read the image
+  }, error = function(e) {
+    return(NULL)  # Return NULL if the image cannot be read
   })
-  color_summary <- color_df %>%
-    group_by(color) %>%
-    summarize(mean_freq = mean(freq))
-  return(list(color_df = color_df, color_summary = color_summary))
+  
+  if (!is.null(img)) {
+    img_colors <- image_quantize(img, colorspace = "sRGB")  # Quantize colors
+    return(img_colors)
+  } else {
+    return(NULL)
+  }
 }
 
-result <- detect_dominant_colors("path/to/folder/with/images") # acá puedo usar la función :)
+# Get the list of image file paths
+folder_path <- here("imgs","Blazers_Y_Chaquetas_-_Moweek_-_Encontrá_Lo_Mejor_De_La_Moda_Local", "Ver_Todo")
+file_paths <- list.files(path = folder_path, pattern = "\\.jpg$|\\.jpeg$|\\.png|\\.JPG|\\.JPEG|\\.PNG$", full.names = TRUE)
 
-# Extract the color_df and color_summary data frames from the result list.
+# Extract dominant colors for valid images
+all_colors <- lapply(file_paths, extract_colors)
+all_colors <- Filter(Negate(is.null), all_colors)  # Remove NULL values
+if (length(all_colors) == 0) {
+  stop("No valid images found in the folder.")
+}
 
-color_df <- result$color_df
-color_summary <- result$color_summary
+# Function to extract RGB values from color
+get_rgb <- function(color) {
+  rgb_val <- col2rgb(color)
+  rgb(rgb_val[1, 1], rgb_val[2, 1], rgb_val[3, 1], maxColorValue = 255)
+}
 
-# View the color_summary data frame to see the mean frequency of each dominant color across all images in the folder.
+# Perform k-means clustering to find the dominant colors
+num_colors <- 5
+dominant_colors <- sapply(all_colors, function(colors) {
+  rgb_values <- sapply(colors, function(color) {
+    get_rgb(color)
+  })
+  kmeans(rgb_values, centers = num_colors)$centers
+})
 
-color_summary
-
-# Visualize the dominant colors (in a folder x) using a bar chart.
-
-ggplot(color_summary, aes(x = color, y = mean_freq, fill = color)) +
-  geom_col() +
-  scale_fill_manual(values = color_summary$color) +
-  theme(axis.text.x = element_blank()) +
-  labs(x = NULL, y = "Mean Frequency", title = "Dominant Colors Across Images")
-
-
+# Print the dominant colors
+print(dominant_colors)
