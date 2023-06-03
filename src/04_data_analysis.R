@@ -143,28 +143,8 @@ colors <- clothes %>%
     category == "Vestidos" ~ color/494), 
     color = round(color*100, 2))
 
-colors %>% 
-  ggplot(aes(fct_reorder(color_value, color, .desc = F), color)) +
-  geom_point(aes(color = color_value), alpha = .6, size = 2) +
-  scale_color_manual(values = rep(c("#8E6151", "#988880"), 30)) +
-  theme(legend.position = "none",
-        panel.border = element_blank(),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        axis.text.y = element_text(margin = margin(r = 5))) +
-  labs(x = "Categoría",
-       y = "10 colores predominantes") +
-  coord_flip() +
-  facet_wrap(~ category, scales = "free_x")
 
-# DATA BUT MAKE IT FASHION - PARTE 3
-## What about sizes?
 
-sizes <- clothes %>% 
-  pivot_longer(size_1:size_11, names_to = "size", values_to = "size_value") %>% 
-  filter(!is.na(size_value)) %>% 
-  group_by(category, brand, size_value) %>% 
-  summarise(size = n()) %>% 
-  arrange(category, desc(size))
+
 
 
