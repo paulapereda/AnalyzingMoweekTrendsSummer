@@ -1,8 +1,7 @@
 .DS_Store
 .Rproj.user/
-*.jpeg
-*.jpg
-*.png
 *.rds
-
-
+*.Rhistory
+*.png
+*.jpg
+*.jpeg

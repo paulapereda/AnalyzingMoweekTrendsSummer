@@ -20,7 +20,7 @@ category_urls <- category_urls[!(category_urls %in% c("/vestimenta/30",         
                                                       "https://moweek.com.uy/vestimenta/vestidos/30",
                                                       "https://moweek.com.uy/vestimenta/trajes-de-bano/30"))]
 
-dir.create("images3", showWarnings = FALSE)
+dir.create("images", showWarnings = FALSE)
 
 # Function to limit folder name length
 limit_folder_name_length <- function(category_url, max_length = 50) {
@@ -38,7 +38,7 @@ for (category_url in category_urls) {
   
   subcategory_name <- gsub(".*/vestimenta/(.*?)/30", "\\1", category_url)
   subfolder_name <- limit_folder_name_length(gsub(" ", "_", tolower(subcategory_name)))
-  subfolder_path <- file.path("images3", subfolder_name)
+  subfolder_path <- file.path("images", subfolder_name)
   dir.create(subfolder_path, showWarnings = FALSE, recursive = TRUE)
   
   subcategory_url <- paste0(url, gsub("/+", "/", category_url))

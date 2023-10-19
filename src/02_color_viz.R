@@ -2,7 +2,7 @@ pacman::p_load(tidyverse, here)
 source(here("src", "estilo_paula.R"))
 
 # My dataset
-color_palette <- read_rds("data-raw/color_palette_by_category.rds")
+color_palette <- read_rds(here("data-raw","color_palette_by_category.rds"))
 
 # Convert the data to a long format
 color_palette_long <- color_palette %>%
